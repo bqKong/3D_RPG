@@ -4,22 +4,41 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-[Serializable]
-public class EventVector3 : UnityEvent<Vector3> { }
+//[Serializable]
+//public class EventVector3 : UnityEvent<Vector3> { }
 
 public class MouseManager : MonoBehaviour
 {
-    public EventVector3 OnMouseClicked;
+    public static MouseManager Instance;
+
+    [Header("é¼ æ ‡å›¾æ ‡")]
+    public Texture2D point, doorway, attack, target, arrow;
+
+    //public EventVector3 OnMouseClicked;
+    //å’Œä¸Šé¢çš„å†™æ³•æ•ˆæœä¸€æ ·
+    //public UnityEvent<Vector3> OnMouseClicked;
+    public UnityAction<Vector3> OnMouseClicked;
 
     RaycastHit hitInfo;
 
-    //ºÍÉÏÃæµÄĞ´·¨Ğ§¹ûÒ»Ñù
-    //public UnityEvent<Vector3> OnMouse;
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -27,16 +46,25 @@ public class MouseManager : MonoBehaviour
     {
         SetCursorTexture();
         MouseControl();
-
     }
 
     void SetCursorTexture()
-    { 
+    {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         var state = Physics.Raycast(ray, out hitInfo);
-        if(state)
+        if (state)
         {
-           
+            //åˆ‡æ¢é¼ æ ‡è´´å›¾
+            switch (hitInfo.collider.gameObject.tag)
+            {
+                case "Ground":
+                    Cursor.SetCursor(target,new Vector2(16,16), CursorMode.Auto);
+                    break;
+
+                default:
+                    break;
+            }
+
         }
 
     }
@@ -44,14 +72,13 @@ public class MouseManager : MonoBehaviour
     void MouseControl()
     {
         if (Input.GetMouseButtonDown(0) && hitInfo.collider != null)
-        { 
-            if(hitInfo.collider.gameObject.CompareTag("Ground"))
+        {
+            if (hitInfo.collider.gameObject.CompareTag("Ground"))
             {
                 OnMouseClicked?.Invoke(hitInfo.point);
             }
 
         }
-
 
     }
 
