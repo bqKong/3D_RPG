@@ -61,6 +61,9 @@ public class MouseManager : MonoBehaviour
                     Cursor.SetCursor(target,new Vector2(16,16), CursorMode.Auto);
                     break;
 
+                case "Ememy":
+                    Cursor.SetCursor(attack, new Vector2(16, 16), CursorMode.Auto);
+                    break;
                 default:
                     break;
             }
