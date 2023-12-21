@@ -14,7 +14,8 @@ public enum EnemyStates
 
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class EnemyController : MonoBehaviour
+[RequireComponent(typeof(CharacterStats))]
+public class EnemyController : MonoBehaviour, IEndGameObserver
 {
     [Header("Basic Settings")]
     public float sightRadius;
@@ -29,8 +30,10 @@ public class EnemyController : MonoBehaviour
     private EnemyStates enemyStates;
     private NavMeshAgent agent;
     private Animator anim;
-
+    private Collider coll;
     private GameObject attackTarget;
+
+    private CharacterStats characterStats;
 
 
     //记录原来速度
@@ -43,19 +46,33 @@ public class EnemyController : MonoBehaviour
 
     private float remainLookAtTime;
 
+    //攻击冷却时间
+    private float lastAttackTime;
+
+    //初始的旋转角度(四元数)
+    private Quaternion guardRotation;
+
     //bool 配合动画
     bool isWalk;
     bool isChase;
     bool isFollow;
+    bool isDead;
 
+    [Tooltip("player是否死亡")]
+    bool playerDead;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
+        characterStats = GetComponent<CharacterStats>();
+        coll = GetComponent<Collider>();
 
         speed = agent.speed;
+        //获取初始的坐标
         guardPos = transform.position;
+        //获取初始角度
+        guardRotation = transform.rotation;
         remainLookAtTime = lookAtTime;
     }
 
@@ -72,28 +89,61 @@ public class EnemyController : MonoBehaviour
             GetNewWayPoint();
         }
 
+        //FIXME:场景切换后会修改
+        GameManager.Instance.AddObserver(this);
+
+    }
+
+    //敌人生成加入列表
+    //private void OnEnable()
+    //{
+    //    GameManager.Instance.AddObserver(this);
+    //}
+
+    //敌人死亡移除列表
+    private void OnDisable()
+    {
+        if (!GameManager.IsInitialized) return;
+        GameManager.Instance.RemoveObserver(this);
     }
 
     // Update is called once per frame
     void Update()
     {
-        SwitchStates();
-        SwitchAnimation();
+        if (characterStats.CurrentHealth == 0)
+        {
+            isDead = true;
+        }
+
+        if (!playerDead)
+        {
+            SwitchStates();
+            SwitchAnimation();
+            lastAttackTime -= Time.deltaTime;
+        }
+
 
     }
 
     private void SwitchAnimation()
     {
         anim.SetBool("Walk", isWalk);
-        anim.SetBool("isChase", isChase);
+        anim.SetBool("Chase", isChase);
         anim.SetBool("Follow", isFollow);
-
+        anim.SetBool("Critical", characterStats.isCritical);
+        anim.SetBool("Death", isDead);
     }
 
     private void SwitchStates()
     {
+        //如果死亡切换状态
+        if (isDead)
+        {
+            enemyStates = EnemyStates.DEAD;
+        }
+
         //发现player 切换到CHASE
-        if (FoundPlayer())
+        else if (FoundPlayer())
         {
             enemyStates = EnemyStates.CHASE;
         }
@@ -101,7 +151,21 @@ public class EnemyController : MonoBehaviour
         switch (enemyStates)
         {
             case EnemyStates.GUARD:
+                isChase = false;
+                if (transform.position != guardPos)
+                {
+                    isWalk = true;
+                    agent.isStopped = false;
+                    agent.destination = guardPos;
 
+                    if (Vector3.Distance(guardPos, transform.position) <= agent.stoppingDistance)
+                    {
+                        isWalk = false;
+                        //防止瞬间转身不自然
+                        transform.rotation = Quaternion.Lerp(transform.rotation, guardRotation, 0.1f);
+                    }
+
+                }
                 break;
 
             case EnemyStates.PATROL:
@@ -136,7 +200,7 @@ public class EnemyController : MonoBehaviour
                 isWalk = false;
                 isChase = true;
                 agent.speed = speed;
-                //TODO:追player
+                //追player
                 if (!FoundPlayer())
                 {
                     //拉脱回到上一个状态
@@ -161,19 +225,66 @@ public class EnemyController : MonoBehaviour
                 else
                 {
                     isFollow = true;
+                    //跑着追击player
+                    agent.isStopped = false;
                     agent.destination = attackTarget.transform.position;
                 }
 
-                //TODO:在攻击范围内攻击，配合动画
+                //在攻击范围内攻击，配合动画
+                if (TargetInAttackRange() || TargetInSkillRange())
+                {
+                    isFollow = false;
+                    agent.isStopped = true;
+                    if (lastAttackTime < 0)
+                    {
+                        lastAttackTime = characterStats.attackData.coolDown;
 
+                        //暴击判断
+                        characterStats.isCritical = Random.value < characterStats.attackData.criticalChance;
+                        //执行攻击
+                        Attack();
+                    }
+
+                }
                 break;
 
             case EnemyStates.DEAD:
-
+                coll.enabled = false;
+                agent.enabled = false;
+                Destroy(gameObject, 2f);
                 break;
         }
     }
 
+
+    /// <summary>
+    /// 执行攻击
+    /// </summary>
+    void Attack()
+    {
+        //攻击要看着目标
+        transform.LookAt(attackTarget.transform);
+
+        if (TargetInAttackRange())
+        {
+            //近身攻击动画
+            anim.SetTrigger("Attack");
+        }
+
+        if (TargetInSkillRange())
+        {
+            //技能攻击动画
+            anim.SetTrigger("Skill");
+        }
+
+
+    }
+
+
+    /// <summary>
+    /// 发现玩家
+    /// </summary>
+    /// <returns></returns>
     bool FoundPlayer()
     {
         var colliders = Physics.OverlapSphere(transform.position, sightRadius);
@@ -192,14 +303,18 @@ public class EnemyController : MonoBehaviour
     }
 
     bool TargetInAttackRange()
-    { 
-    
+    {
+        if (attackTarget != null)
+            return Vector3.Distance(attackTarget.transform.position, transform.position) <= characterStats.attackData.attackRange;
+        else return false;
     }
 
     bool TargetInSkillRange()
-    { 
-    
-        
+    {
+        if (attackTarget != null)
+            return Vector3.Distance(attackTarget.transform.position, transform.position) <= characterStats.attackData.skillRange;
+        else return false;
+
     }
 
 
@@ -229,5 +344,30 @@ public class EnemyController : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, sightRadius);
     }
 
+    //Animation Event
+    void Hit()
+    {
+        if (attackTarget != null)
+        {
+            var targetStats = attackTarget.GetComponent<CharacterStats>();
+            targetStats.TakeDamage(characterStats, targetStats);
+        }
 
+    }
+
+    public void EndNotify()
+    {
+        //player已死
+        playerDead = true;
+
+        //获胜动画
+        anim.SetBool("Win", true);
+
+        //停止所有移动
+        //停止Agent
+        isChase = false;
+        isWalk = false;
+        attackTarget = null;
+
+    }
 }

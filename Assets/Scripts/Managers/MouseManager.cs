@@ -7,9 +7,9 @@ using UnityEngine.Events;
 //[Serializable]
 //public class EventVector3 : UnityEvent<Vector3> { }
 
-public class MouseManager : MonoBehaviour
+public class MouseManager : Singleton<MouseManager>
 {
-    public static MouseManager Instance;
+    // public static MouseManager Instance;
 
     [Header("鼠标图标")]
     public Texture2D point, doorway, attack, target, arrow;
@@ -24,17 +24,23 @@ public class MouseManager : MonoBehaviour
     RaycastHit hitInfo;
 
 
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
+    //private void Awake()
+    //{
+    //    if (Instance != null)
+    //    {
+    //        Destroy(gameObject);
+    //    }
+    //    else
+    //    {
+    //        Instance = this;
+    //    }
 
+    //}
+
+    protected override void Awake()
+    {
+        base.Awake();
+        //DontDestroyOnLoad(this);
     }
 
     // Start is called before the first frame update
@@ -60,7 +66,7 @@ public class MouseManager : MonoBehaviour
             switch (hitInfo.collider.gameObject.tag)
             {
                 case "Ground":
-                    Cursor.SetCursor(target,new Vector2(16,16), CursorMode.Auto);
+                    Cursor.SetCursor(target, new Vector2(16, 16), CursorMode.Auto);
                     break;
 
                 case "Enemy":
