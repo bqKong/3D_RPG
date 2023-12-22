@@ -21,7 +21,7 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
     public float sightRadius;
     public bool isGuard;
 
-    //左顾右盼时间
+    [Tooltip("原地左顾右盼时间")]
     public float lookAtTime;
 
     [Header("Patrol State")]
@@ -31,14 +31,15 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
     private NavMeshAgent agent;
     private Animator anim;
     private Collider coll;
-    private GameObject attackTarget;
+    protected GameObject attackTarget;
 
-    private CharacterStats characterStats;
+    protected CharacterStats characterStats;
 
 
     //记录原来速度
     private float speed;
 
+    //目的坐标
     private Vector3 wayPoint;
 
     //初始坐标
@@ -125,6 +126,9 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
 
     }
 
+    /// <summary>
+    /// 动画函数
+    /// </summary>
     private void SwitchAnimation()
     {
         anim.SetBool("Walk", isWalk);
@@ -134,6 +138,9 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
         anim.SetBool("Death", isDead);
     }
 
+    /// <summary>
+    /// 模式切换函数
+    /// </summary>
     private void SwitchStates()
     {
         //如果死亡切换状态
@@ -173,7 +180,7 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
                 isChase = false;
                 agent.speed = speed * 0.5f;
 
-                //判断是否到了随机巡逻队
+                //判断是否到了随机巡逻点
                 if (Vector3.Distance(wayPoint, transform.position) <= agent.stoppingDistance)
                 {
                     isWalk = false;
@@ -250,7 +257,8 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
 
             case EnemyStates.DEAD:
                 coll.enabled = false;
-                agent.enabled = false;
+                //agent.enabled = false;
+                agent.radius = 0;
                 Destroy(gameObject, 2f);
                 break;
         }
@@ -287,7 +295,9 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
     /// <returns></returns>
     bool FoundPlayer()
     {
+        //找到半径内的所有碰撞体
         var colliders = Physics.OverlapSphere(transform.position, sightRadius);
+
         foreach (var collider in colliders)
         {
             if (collider.CompareTag("Player"))
@@ -302,6 +312,10 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
         return false;
     }
 
+    /// <summary>
+    /// 目标是否在攻击范围内
+    /// </summary>
+    /// <returns></returns>
     bool TargetInAttackRange()
     {
         if (attackTarget != null)
@@ -309,6 +323,10 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
         else return false;
     }
 
+    /// <summary>
+    /// 目标是否在技能范围内
+    /// </summary>
+    /// <returns></returns>
     bool TargetInSkillRange()
     {
         if (attackTarget != null)
@@ -317,8 +335,9 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
 
     }
 
-
-
+    /// <summary>
+    /// 重新获取下个目标点
+    /// </summary>
     void GetNewWayPoint()
     {
         remainLookAtTime = lookAtTime;
@@ -347,7 +366,7 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
     //Animation Event
     void Hit()
     {
-        if (attackTarget != null)
+        if (attackTarget != null && transform.IsFacingTarget(attackTarget.transform))
         {
             var targetStats = attackTarget.GetComponent<CharacterStats>();
             targetStats.TakeDamage(characterStats, targetStats);

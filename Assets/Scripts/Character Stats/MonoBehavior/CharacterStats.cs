@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class CharacterStats : MonoBehaviour
 {
+    //模版data
     public CharacterData_SO templateData;
 
     public CharacterData_SO characterData;
@@ -16,7 +17,7 @@ public class CharacterStats : MonoBehaviour
 
     private void Awake()
     {
-        //一份copy 的data，从模板中复制出来一份，防止大家共用一份导致一起死亡
+        //一份copy 的data，从模板中复制出来一份，防止大家共用一份导致一起死亡的BUG
         if(templateData != null) 
         {
             characterData = Instantiate(templateData);
@@ -94,7 +95,7 @@ public class CharacterStats : MonoBehaviour
         CurrentHealth = Mathf.Max(CurrentHealth - damage,0);
 
         //如果暴击，播放受击动画
-        if (isCritical)
+        if (attacker.isCritical)
         {
             defener.GetComponent<Animator>().SetTrigger("Hit");
         }

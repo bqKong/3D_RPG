@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65b76c3a8e7e6fb4491c20f5c27cdbb8, type: 3}
-  m_Name: Player Data
+  m_Name: Golem Data
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  currentHealth: 100
-  baseDefence: 2
+  maxHealth: 80
+  currentHealth: 50
+  baseDefence: 5
   currentDefence: 5

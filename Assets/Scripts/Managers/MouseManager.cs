@@ -17,8 +17,8 @@ public class MouseManager : Singleton<MouseManager>
     //public EventVector3 OnMouseClicked;
     //和上面的写法效果一样
     //public UnityEvent<Vector3> OnMouseClicked;
-    public UnityAction<Vector3> OnMouseClicked;
 
+    public UnityAction<Vector3> OnMouseClicked;
     public event UnityAction<GameObject> OnEnemyClicked;
 
     RaycastHit hitInfo;
@@ -56,6 +56,9 @@ public class MouseManager : Singleton<MouseManager>
         MouseControl();
     }
 
+    /// <summary>
+    /// 设置鼠标的图案
+    /// </summary>
     void SetCursorTexture()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -80,6 +83,9 @@ public class MouseManager : Singleton<MouseManager>
 
     }
 
+    /// <summary>
+    /// 事件调用，事件触发
+    /// </summary>
     void MouseControl()
     {
         if (Input.GetMouseButtonDown(0) && hitInfo.collider != null)
@@ -93,7 +99,6 @@ public class MouseManager : Singleton<MouseManager>
             {
                 OnEnemyClicked?.Invoke(hitInfo.collider.gameObject);
             }
-
 
         }
 

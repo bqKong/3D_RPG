@@ -19,11 +19,15 @@ public class PlayerController : MonoBehaviour
 
     private bool isDead;
 
+    private float stopDistance;
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         characterStats = GetComponent<CharacterStats>();
+
+        stopDistance = agent.stoppingDistance;
     }
 
     // Start is called before the first frame update
@@ -69,6 +73,8 @@ public class PlayerController : MonoBehaviour
 
         if (isDead) return;
 
+       // agent.stoppingDistance = stopDistance;
+
         agent.isStopped = false;
         agent.destination = target;
     }
@@ -94,9 +100,12 @@ public class PlayerController : MonoBehaviour
     IEnumerator MoveToAttackTarget()
     {
         agent.isStopped = false;
+
+        //agent.stoppingDistance = characterStats.attackData.attackRange;
+
         transform.LookAt(attackTarget.transform);
 
-        //TODO:修改范围参数
+
         while (Vector3.Distance(attackTarget.transform.position, this.transform.position) > characterStats.attackData.attackRange)
         {
             agent.destination = attackTarget.transform.position;
