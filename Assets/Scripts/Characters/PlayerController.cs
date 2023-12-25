@@ -73,7 +73,7 @@ public class PlayerController : MonoBehaviour
 
         if (isDead) return;
 
-       // agent.stoppingDistance = stopDistance;
+        agent.stoppingDistance = stopDistance;
 
         agent.isStopped = false;
         agent.destination = target;
@@ -101,7 +101,7 @@ public class PlayerController : MonoBehaviour
     {
         agent.isStopped = false;
 
-        //agent.stoppingDistance = characterStats.attackData.attackRange;
+        agent.stoppingDistance = characterStats.attackData.attackRange;
 
         transform.LookAt(attackTarget.transform);
 
@@ -129,8 +129,22 @@ public class PlayerController : MonoBehaviour
     //Animation Event
     void Hit()
     {
-        var targetStats = attackTarget.GetComponent<CharacterStats>();
-        targetStats.TakeDamage(characterStats, targetStats);
+        if (attackTarget.CompareTag("Attackable"))
+        {
+            if (attackTarget.GetComponent<Rock>() && attackTarget.GetComponent<Rock>().rockStates == Rock.RockState.HitNothing)
+            {
+                attackTarget.GetComponent<Rock>().rockStates = Rock.RockState.HitEnemy;
+                attackTarget.GetComponent<Rigidbody>().velocity = Vector3.one;
+               attackTarget.GetComponent<Rigidbody>().AddForce(transform.forward * 20f, ForceMode.Impulse);
+            }
+
+        }
+        else
+        {
+            var targetStats = attackTarget.GetComponent<CharacterStats>();
+            targetStats.TakeDamage(characterStats, targetStats);
+        }
+
     }
 
 

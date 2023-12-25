@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class CharacterStats : MonoBehaviour
 {
+
+    public event Action<int, int> updateHealBarOnAttack;
+       
     //模版data
     public CharacterData_SO templateData;
 
@@ -100,9 +103,27 @@ public class CharacterStats : MonoBehaviour
             defener.GetComponent<Animator>().SetTrigger("Hit");
         }
 
-        //TODO:UPDATE UUI
+        //TODO:UPDATE UI
+        updateHealBarOnAttack?.Invoke(CurrentHealth, MaxHealth);
+
         //TODO:经验UPDATE
+        if (CurrentHealth <= 0)
+            attacker.characterData.UpdateExp(characterData.killPoint);
+
     }
+
+    public void TakeDamage(int damage, CharacterStats defener)
+    {
+        int currentDamge = Mathf.Max(damage, defener.CurrentDefence, 0);
+        CurrentHealth = Mathf.Max(CurrentHealth - currentDamge, 0);
+
+       //更新血条
+        updateHealBarOnAttack?.Invoke(CurrentHealth, MaxHealth);
+
+        //更新经验条
+        GameManager.Instance.playStats.characterData.UpdateExp(characterData.killPoint);
+    }
+
 
     /// <summary>
     /// 真实攻击力

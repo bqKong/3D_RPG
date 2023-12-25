@@ -100,6 +100,11 @@ public class MouseManager : Singleton<MouseManager>
                 OnEnemyClicked?.Invoke(hitInfo.collider.gameObject);
             }
 
+            if (hitInfo.collider.gameObject.tag.Equals("Attackable"))
+            {
+                OnEnemyClicked?.Invoke(hitInfo.collider.gameObject);
+            }
+
         }
 
     }
