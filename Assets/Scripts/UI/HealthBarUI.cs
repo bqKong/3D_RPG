@@ -6,8 +6,10 @@ using UnityEngine.UI;
 
 public class HealthBarUI : MonoBehaviour
 {
+    [Header("预制体")]
     public GameObject healthUIPrefab;
 
+    [Header("生成点")]
     public Transform barPoint;
 
     [Header("是否长久可见")]
@@ -20,6 +22,7 @@ public class HealthBarUI : MonoBehaviour
 
     private Image healthSlider;
     private Transform UIbar;
+    [Tooltip("Camera")]
     private Transform cam;
 
     CharacterStats currentStats;
@@ -85,16 +88,4 @@ public class HealthBarUI : MonoBehaviour
 
     }
 
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 }

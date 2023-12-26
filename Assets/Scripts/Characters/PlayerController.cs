@@ -30,14 +30,29 @@ public class PlayerController : MonoBehaviour
         stopDistance = agent.stoppingDistance;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void OnEnable()
     {
         MouseManager.Instance.OnMouseClicked += MoveToTarget;
         MouseManager.Instance.OnEnemyClicked += EventAttack;
-
         //注册GameManager
         GameManager.Instance.RigisterPlayer(characterStats);
+    }
+
+    
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        //一开始，player拿到自己的数据
+        SaveManager.Instance.LoadPlayerData();
+    }
+
+
+    //人物销毁要注销掉之前的事件，否则会一直存在于系统当中
+    private void OnDisable()
+    {
+        MouseManager.Instance.OnMouseClicked -= MoveToTarget;
+        MouseManager.Instance.OnEnemyClicked -= EventAttack;
     }
 
 

@@ -30,6 +30,7 @@ public class CharacterData_SO : ScriptableObject
 
     public float levelBuff;
 
+    //等级系数因子
     public float LevelMultiplier
     {
         get { return (1 + currentLevel - 1) * levelBuff; }
@@ -48,9 +49,8 @@ public class CharacterData_SO : ScriptableObject
 
     private void LevelUp()
     {
-        //所有你想提升的数据方法
-        currentLevel = Mathf.Clamp(currentLevel + 1, 0, maxLevel);
-
+        //所有你想提升的数据方法,
+        currentLevel = Mathf.Clamp(currentLevel + 1, 1, maxLevel);
         baseExp += (int)(baseExp * LevelMultiplier);
 
         //每次提升百分之10

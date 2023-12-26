@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,11 +7,31 @@ public class GameManager : Singleton<GameManager>
 {
     public CharacterStats playStats;
 
+    //cinemachine
+    private CinemachineFreeLook followCamera;
+
     List<IEndGameObserver> endGameObservers = new List<IEndGameObserver>();
+
+    protected override void Awake()
+    {
+        base.Awake();
+        DontDestroyOnLoad(this);
+    }
+
 
     public void RigisterPlayer(CharacterStats player)
     {
         playStats = player;
+
+        //查找场景是否有这个camera
+        followCamera = FindObjectOfType<CinemachineFreeLook>();
+
+        if (followCamera != null)
+        { 
+            followCamera.Follow = playStats.transform.GetChild(2);
+            followCamera.Follow = playStats.transform.GetChild(2);
+        }
+
     }
 
     public void AddObserver(IEndGameObserver observer) 
@@ -34,6 +55,25 @@ public class GameManager : Singleton<GameManager>
         {
             observer.EndNotify();
         }
+    }
+
+    /// <summary>
+    /// 获取第一个场景入口坐标
+    /// </summary>
+    /// <returns></returns>
+    public Transform GetEntrance()
+    {
+        foreach (var item in FindObjectsOfType<TransitionDestination>())
+        {
+            if (item.destinationTag == TransitionDestination.DestinationTag.ENTER)
+            {
+                return item.transform;
+            }
+
+        }
+
+        return null;
+
     }
 
 }
