@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class SceneController : Singleton<SceneController>,IEndGameObserver
 {
+
     public GameObject playerPrefab;
 
     public SceneFader sceneFaderPrefab;
@@ -28,16 +29,12 @@ public class SceneController : Singleton<SceneController>,IEndGameObserver
         fadeFinished = true;
     }
 
-
-
-
     public void TransitionToDestination(TransitionPoint transitionPoint)
     {
         switch (transitionPoint.transitionType)
         {
             case TransitionPoint.TransitionType.SameScene:
                 StartCoroutine(Transition(SceneManager.GetActiveScene().name, transitionPoint.destinationTag));
-
                 break;
 
             case TransitionPoint.TransitionType.DifferentScene:
@@ -48,6 +45,12 @@ public class SceneController : Singleton<SceneController>,IEndGameObserver
         }
     }
 
+    /// <summary>
+    /// 同场景或跨场景传送
+    /// </summary>
+    /// <param name="sceneName">场景名字</param>
+    /// <param name="destinationTag">要去的场景的标签</param>
+    /// <returns></returns>
     private IEnumerator Transition(string sceneName, TransitionDestination.DestinationTag destinationTag)
     {
 
@@ -60,6 +63,7 @@ public class SceneController : Singleton<SceneController>,IEndGameObserver
             //FIXME:可以加入fader
             //yieled return 是否在这一帧等待时间完成
             yield return SceneManager.LoadSceneAsync(sceneName);
+
             yield return Instantiate(playerPrefab,GetDestination(destinationTag).transform.position,
                 GetDestination(destinationTag).transform.rotation);
             //读取数据
@@ -69,6 +73,7 @@ public class SceneController : Singleton<SceneController>,IEndGameObserver
         }
         else
         {
+            //同场景就获取player，修改player的坐标
             player = GameManager.Instance.playStats.gameObject;
             playerAgent = player.GetComponent<NavMeshAgent>();
 
@@ -84,6 +89,11 @@ public class SceneController : Singleton<SceneController>,IEndGameObserver
 
     }
 
+    /// <summary>
+    /// 获取该终点标签的位置坐标
+    /// </summary>
+    /// <param name="destinationTag"></param>
+    /// <returns></returns>
     private TransitionDestination GetDestination(TransitionDestination.DestinationTag destinationTag)
     {
         var entrances = FindObjectsOfType<TransitionDestination>();
@@ -99,7 +109,9 @@ public class SceneController : Singleton<SceneController>,IEndGameObserver
         return null;
     }
 
-
+    /// <summary>
+    /// Continue Game
+    /// </summary>
     public void TransitionToLoadGame()
     {
         StartCoroutine(LoadLevel(SaveManager.Instance.SceneName));
@@ -110,7 +122,9 @@ public class SceneController : Singleton<SceneController>,IEndGameObserver
         StartCoroutine(LoadMain());
     }
 
-
+    /// <summary>
+    /// New Game
+    /// </summary>
     public void TransitionToFirstLevel()
     {
         StartCoroutine(LoadLevel("SimpleNaturePack_Demo"));
@@ -131,6 +145,7 @@ public class SceneController : Singleton<SceneController>,IEndGameObserver
 
             //保存游戏数据
             SaveManager.Instance.SavePlayerData();
+
             //淡入
             yield return StartCoroutine(fade.FadeIn(2.5f));
 
@@ -140,6 +155,10 @@ public class SceneController : Singleton<SceneController>,IEndGameObserver
 
     }
 
+    /// <summary>
+    /// 加载主菜单
+    /// </summary>
+    /// <returns></returns>
     IEnumerator LoadMain()
     {
         SceneFader fade = Instantiate(sceneFaderPrefab);
@@ -151,6 +170,9 @@ public class SceneController : Singleton<SceneController>,IEndGameObserver
         yield break;
     }
 
+    /// <summary>
+    /// 观察者方法
+    /// </summary>
     public void EndNotify()
     {
         //TransitionToMain();

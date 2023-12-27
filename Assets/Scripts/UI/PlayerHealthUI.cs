@@ -17,14 +17,6 @@ public class PlayerHealthUI : MonoBehaviour
         healthSlider = transform.GetChild(0).GetChild(0).GetComponent<Image>();
         expSlider = transform.GetChild(1).GetChild(0).GetComponent<Image>();
         levelText = transform.GetChild(2).GetComponent<TextMeshProUGUI>();
-        
-    }
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
     }
 
     // Update is called once per frame
@@ -33,7 +25,6 @@ public class PlayerHealthUI : MonoBehaviour
         levelText.text = "Level " + GameManager.Instance.playStats.characterData.currentLevel.ToString("00");
         updateHealth();
         updateExp();
-
     }
 
     void updateHealth()

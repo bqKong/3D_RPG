@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class CharacterStats : MonoBehaviour
 {
-
+    //更新血条事件
+    //因为TakeDamge函数在这个类中，所以定义和调用也应在这个类当中
     public event Action<int, int> updateHealBarOnAttack;
        
     //模版data
@@ -92,6 +93,11 @@ public class CharacterStats : MonoBehaviour
 
     #region Character Combat
 
+    /// <summary>
+    /// 受伤函数
+    /// </summary>
+    /// <param name="attacker"></param>
+    /// <param name="defener"></param>
     public void TakeDamage(CharacterStats attacker, CharacterStats defener)
     {
         int damage = Mathf.Max(attacker.CurrentDamage() - defener.CurrentDefence,0);

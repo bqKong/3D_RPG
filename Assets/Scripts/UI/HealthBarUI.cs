@@ -44,6 +44,7 @@ public class HealthBarUI : MonoBehaviour
             {
                 UIbar = Instantiate(healthUIPrefab, canvs.transform).transform;
                 healthSlider = UIbar.GetChild(0).GetComponent<Image>();
+                //是否一直显示血条
                 UIbar.gameObject.SetActive(alwaysVisible);
             }
 
@@ -58,6 +59,7 @@ public class HealthBarUI : MonoBehaviour
 
         UIbar.gameObject.SetActive(true);
 
+        //重新赋值可视化时间
         timeLeft = visibleTime;
 
         float sliderPercent = (float)currentHealth / maxHealth;
@@ -69,6 +71,7 @@ public class HealthBarUI : MonoBehaviour
     {
         if (UIbar != null)
         {
+            //血条的位置在设置好的生成点
             UIbar.position = barPoint.position;
 
             //摄像机永远对着UIbar，在这里是反向的

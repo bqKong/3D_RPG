@@ -20,5 +20,4 @@ public class AttackData_SO : ScriptableObject
     [Tooltip("暴击率")]
     public float criticalChance;
 
-
 }

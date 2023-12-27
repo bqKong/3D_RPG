@@ -6,8 +6,9 @@ public class SceneFader : MonoBehaviour
 {
     CanvasGroup canvasGroup;
 
+    [Header("淡入时间")]
     public float fadeInDuration;
-
+    [Header("淡出时间")]
     public float fadeOutDuration;
 
     private void Awake()

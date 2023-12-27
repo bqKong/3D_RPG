@@ -73,6 +73,8 @@ public class Rock : MonoBehaviour
                     other.gameObject.GetComponent<NavMeshAgent>().velocity = direction * force;
 
                     other.gameObject.GetComponent<Animator>().SetTrigger("Dizzy");
+
+                    //受伤
                     other.gameObject.GetComponent<CharacterStats>().TakeDamage(damage, other.gameObject.GetComponent<CharacterStats>());
 
                     rockStates = RockState.HitNothing;

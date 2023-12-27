@@ -12,13 +12,14 @@ public enum EnemyStates
     DEAD
 }
 
-
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(CharacterStats))]
 public class EnemyController : MonoBehaviour, IEndGameObserver
 {
     [Header("Basic Settings")]
+    [Tooltip("视野范围")]
     public float sightRadius;
+    [Tooltip("是否巡逻")]
     public bool isGuard;
 
     [Tooltip("原地左顾右盼时间")]
@@ -31,17 +32,14 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
     private NavMeshAgent agent;
     private Animator anim;
     private Collider coll;
+
     protected GameObject attackTarget;
-
     protected CharacterStats characterStats;
-
 
     //记录原来速度
     private float speed;
-
     //目的坐标
     private Vector3 wayPoint;
-
     //初始坐标
     private Vector3 guardPos;
 
@@ -58,7 +56,6 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
     bool isChase;
     bool isFollow;
     bool isDead;
-
     [Tooltip("player是否死亡")]
     bool playerDead;
 
@@ -72,7 +69,7 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
         speed = agent.speed;
         //获取初始的坐标
         guardPos = transform.position;
-        //获取初始角度
+        //获取初始旋转角度
         guardRotation = transform.rotation;
         remainLookAtTime = lookAtTime;
     }
@@ -116,14 +113,13 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
             isDead = true;
         }
 
+        //player没有死亡
         if (!playerDead)
         {
             SwitchStates();
             SwitchAnimation();
             lastAttackTime -= Time.deltaTime;
         }
-
-
     }
 
     /// <summary>
@@ -159,6 +155,7 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
         {
             case EnemyStates.GUARD:
                 isChase = false;
+                //结束追逐，回到原本的位置
                 if (transform.position != guardPos)
                 {
                     isWalk = true;
@@ -171,12 +168,10 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
                         //防止瞬间转身不自然
                         transform.rotation = Quaternion.Lerp(transform.rotation, guardRotation, 0.1f);
                     }
-
                 }
                 break;
 
             case EnemyStates.PATROL:
-
                 isChase = false;
                 agent.speed = speed * 0.5f;
 
@@ -203,7 +198,6 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
                 break;
 
             case EnemyStates.CHASE:
-
                 isWalk = false;
                 isChase = true;
                 agent.speed = speed;
@@ -284,10 +278,7 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
             //技能攻击动画
             anim.SetTrigger("Skill");
         }
-
-
     }
-
 
     /// <summary>
     /// 发现玩家
@@ -307,7 +298,6 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
             }
 
         }
-
         attackTarget = null;
         return false;
     }
@@ -348,11 +338,12 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
 
         Vector3 randomPoint = new Vector3(guardPos.x + randomX, transform.position.y, guardPos.z + randomZ);
 
-        //FIXME:可能有问题
+        //FIXME:可能有问题,可能会卡石块
         //wayPoint = randomPoint;
 
         //修复问题
         NavMeshHit hit;
+        //这里的1是Navigation的layer
         wayPoint = NavMesh.SamplePosition(randomPoint, out hit, patrolRange, 1) ? hit.position : transform.position;
 
     }

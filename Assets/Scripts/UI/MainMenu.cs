@@ -11,6 +11,7 @@ public class MainMenu : MonoBehaviour
     private Button continueButton;
     private Button quitBtn;
 
+    //Timeline
     PlayableDirector director;
 
     private void Awake()
@@ -47,21 +48,9 @@ public class MainMenu : MonoBehaviour
         SceneController.Instance.TransitionToLoadGame();
     }
 
-
     void QuitGame()
     {
         Application.Quit();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 }

@@ -26,10 +26,11 @@ public class GameManager : Singleton<GameManager>
         //查找场景是否有这个camera
         followCamera = FindObjectOfType<CinemachineFreeLook>();
 
+        //切换场景重新绑定虚拟相机的跟随目标
         if (followCamera != null)
         { 
             followCamera.Follow = playStats.transform.GetChild(2);
-            followCamera.Follow = playStats.transform.GetChild(2);
+            followCamera.LookAt = playStats.transform.GetChild(2);
         }
 
     }

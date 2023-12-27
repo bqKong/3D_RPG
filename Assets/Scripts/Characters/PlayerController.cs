@@ -16,9 +16,9 @@ public class PlayerController : MonoBehaviour
 
     [Tooltip("冷却时间")]
     private float lastAttackTime;
-
+    [Tooltip("人物是否死亡")]
     private bool isDead;
-
+    [Tooltip("停止距离")]
     private float stopDistance;
 
     private void Awake()
@@ -34,11 +34,10 @@ public class PlayerController : MonoBehaviour
     {
         MouseManager.Instance.OnMouseClicked += MoveToTarget;
         MouseManager.Instance.OnEnemyClicked += EventAttack;
-        //注册GameManager
+
+        //将人物注册到GameManager
         GameManager.Instance.RigisterPlayer(characterStats);
     }
-
-    
 
     // Start is called before the first frame update
     void Start()
@@ -86,8 +85,9 @@ public class PlayerController : MonoBehaviour
     {
         StopAllCoroutines();
 
+        //如果死亡就返回
         if (isDead) return;
-
+        //恢复初始的停止距离
         agent.stoppingDistance = stopDistance;
 
         agent.isStopped = false;
@@ -102,9 +102,9 @@ public class PlayerController : MonoBehaviour
         {
             attackTarget = target;
 
+            //是否暴击了
             characterStats.isCritical = UnityEngine.Random.value < characterStats.attackData.criticalChance;
 
-            //移动到面前并攻击
             //不停移动直到站到怪物跟前，不用能while，要用协程
             StartCoroutine(MoveToAttackTarget());
 
@@ -116,10 +116,10 @@ public class PlayerController : MonoBehaviour
     {
         agent.isStopped = false;
 
+        //攻击时，将当前的停止距离修改为攻击距离
         agent.stoppingDistance = characterStats.attackData.attackRange;
-
+        //保证攻击时player是面朝敌人的
         transform.LookAt(attackTarget.transform);
-
 
         while (Vector3.Distance(attackTarget.transform.position, this.transform.position) > characterStats.attackData.attackRange)
         {
@@ -161,6 +161,5 @@ public class PlayerController : MonoBehaviour
         }
 
     }
-
 
 }

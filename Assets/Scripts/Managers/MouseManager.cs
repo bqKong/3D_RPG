@@ -18,35 +18,17 @@ public class MouseManager : Singleton<MouseManager>
     //和上面的写法效果一样
     //public UnityEvent<Vector3> OnMouseClicked;
 
+    //自定义的鼠标点击事件
+    //思路：要移动那得有个目标的position，要攻击得有目标的gameobject
     public UnityAction<Vector3> OnMouseClicked;
     public event UnityAction<GameObject> OnEnemyClicked;
 
     RaycastHit hitInfo;
 
-
-    //private void Awake()
-    //{
-    //    if (Instance != null)
-    //    {
-    //        Destroy(gameObject);
-    //    }
-    //    else
-    //    {
-    //        Instance = this;
-    //    }
-
-    //}
-
     protected override void Awake()
     {
         base.Awake();
         DontDestroyOnLoad(this);
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
     }
 
     // Update is called once per frame
@@ -89,6 +71,7 @@ public class MouseManager : Singleton<MouseManager>
 
     }
 
+    //思路：该事件在内部广播调用，订阅器应在PlayerController身上
     /// <summary>
     /// 事件调用，事件触发
     /// </summary>
